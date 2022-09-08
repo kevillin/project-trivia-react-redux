@@ -45,7 +45,7 @@ class Login extends Component {
   redirectToConfig = () => {
     const { history } = this.props;
     history.push('/config');
-  }
+  };
 
   render() {
     const { isDisable } = this.state;

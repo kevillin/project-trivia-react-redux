@@ -42,6 +42,11 @@ class Login extends Component {
     history.push('/jogo');
   };
 
+  redirectToConfig = () => {
+    const { history } = this.props;
+    history.push('/config');
+  };
+
   render() {
     const { isDisable } = this.state;
     return (
@@ -74,6 +79,13 @@ class Login extends Component {
             onClick={ this.handleClick }
           >
             Play
+          </button>
+          <button
+            type="button"
+            data-testid="btn-settings"
+            onClick={ this.redirectToConfig }
+          >
+            Configurações
           </button>
         </form>
       </section>

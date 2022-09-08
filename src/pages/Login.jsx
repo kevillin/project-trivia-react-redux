@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import apiTrivia from '../services/apiTrivia';
 import { saveToken } from '../redux/actions';
-import PropTypes from 'prop-types';
 
 class Login extends Component {
   constructor(props) {
@@ -31,7 +31,7 @@ class Login extends Component {
     const { name, value } = target;
     this.setState({ [name]: value }, () => this.estadoBtn());
   };
-  
+
   handleClick = async (event) => {
     event.preventDefault();
     const resultApi = await apiTrivia();
@@ -39,7 +39,7 @@ class Login extends Component {
     localStorage.setItem('token', tokenApi);
     const { token, history } = this.props;
     token(tokenApi);
-    history.push('/jogo')
+    history.push('/jogo');
   };
 
   render() {
@@ -83,9 +83,10 @@ class Login extends Component {
 
 Login.propTypes = {
   history: PropTypes.shape({
-  push: PropTypes.func,
+    push: PropTypes.func,
   }).isRequired,
-}; 
+  token: PropTypes.string.isRequired,
+};
 
 const mapDispatchToProps = (dispatch) => ({
   token: (item) => dispatch(saveToken(item)),

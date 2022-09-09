@@ -38,9 +38,10 @@ class Login extends Component {
     event.preventDefault();
     const resultApi = await getToken();
     const tokenApi = resultApi.token;
-    localStorage.setItem('token', tokenApi);
     const { token, history, nameUser } = this.props;
     const { name } = this.state;
+    localStorage.setItem('token', tokenApi);
+    localStorage.setItem('name', name);
     nameUser(name);
     token(tokenApi);
     history.push('/jogo');
@@ -101,8 +102,8 @@ Login.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func,
   }).isRequired,
-  token: PropTypes.string.isRequired,
-  nameUser: PropTypes.arrayOf().isRequired,
+  token: PropTypes.func.isRequired,
+  nameUser: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = (dispatch) => ({

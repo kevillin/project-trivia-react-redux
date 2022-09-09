@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import apiTrivia from '../services/apiTrivia';
-import { saveToken } from '../redux/actions';
+import { saveToken, saveNameUser } from '../redux/actions';
 
 class Login extends Component {
   constructor(props) {
@@ -29,7 +29,9 @@ class Login extends Component {
 
   handleChange = ({ target }) => {
     const { name, value } = target;
-    this.setState({ [name]: value }, () => this.estadoBtn());
+    this.setState({ [name]: value }, () => {
+      this.estadoBtn();
+    });
   };
 
   handleClick = async (event) => {
@@ -37,7 +39,9 @@ class Login extends Component {
     const resultApi = await apiTrivia();
     const tokenApi = resultApi.token;
     localStorage.setItem('token', tokenApi);
-    const { token, history } = this.props;
+    const { token, history, nameUser } = this.props;
+    const { name } = this.state;
+    nameUser(name);
     token(tokenApi);
     history.push('/jogo');
   };
@@ -98,10 +102,12 @@ Login.propTypes = {
     push: PropTypes.func,
   }).isRequired,
   token: PropTypes.string.isRequired,
+  nameUser: PropTypes.arrayOf().isRequired,
 };
 
 const mapDispatchToProps = (dispatch) => ({
   token: (item) => dispatch(saveToken(item)),
+  nameUser: (name) => dispatch(saveNameUser(name)),
 });
 
 export default connect(null, mapDispatchToProps)(Login);

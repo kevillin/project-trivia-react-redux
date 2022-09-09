@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import apiTrivia from '../services/apiTrivia';
+import { getToken } from '../services/apiTrivia';
 import { saveToken, saveNameUser } from '../redux/actions';
 
 class Login extends Component {
@@ -36,7 +36,7 @@ class Login extends Component {
 
   handleClick = async (event) => {
     event.preventDefault();
-    const resultApi = await apiTrivia();
+    const resultApi = await getToken();
     const tokenApi = resultApi.token;
     localStorage.setItem('token', tokenApi);
     const { token, history, nameUser } = this.props;

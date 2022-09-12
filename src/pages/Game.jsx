@@ -17,11 +17,17 @@ class Jogo extends Component {
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     const { dispatch, token } = this.props;
-    await dispatch(fetchQuestionsAction(token));
-    this.renderQuestions();
+    dispatch(fetchQuestionsAction(token));
     this.getName();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { questions } = this.props;
+    if (questions !== prevProps.questions) {
+      this.renderQuestions();
+    }
   }
 
   shuffleArray = (arr) => {
@@ -40,72 +46,83 @@ class Jogo extends Component {
   };
 
   renderQuestions = () => {
-    const { questions } = this.props;
-    const IncoAnswers = questions.results[0].incorrect_answers;
-    IncoAnswers.push(questions.results[0].correct_answer);
-    this.setState({
-      question: questions.results[0].question,
-      category: questions.results[0].category,
-      correctAnswer: questions.results[0].correct_answer,
-      arrayAnswer: this.shuffleArray(IncoAnswers),
-    });
+    const { questions, history } = this.props;
+    const INVALID_TOKEN = 3;
+    if (questions.response_code === INVALID_TOKEN) {
+      localStorage.clear();
+      history.push('/');
+    } else {
+      const IncorrectAnswers = questions.results[0].incorrect_answers;
+      const correctAnswer = questions.results[0].correct_answer;
+      this.setState({
+        question: questions.results[0].question,
+        category: questions.results[0].category,
+        correctAnswer: questions.results[0].correct_answer,
+        arrayAnswer: this.shuffleArray([...IncorrectAnswers, correctAnswer]),
+      });
+    }
   };
 
   render() {
     const { question, category, name, arrayAnswer, correctAnswer } = this.state;
 
-    // const userEmail = md5(email).toString();
     return (
-      <section>
+      <div>
+        {
+          question && (
+            <section>
 
-        <img
-          data-testid="header-profile-picture"
-          src="https://www.gravatar.com/avatar/c19ad9dbaf91c5533605fbf985177ccc"
-          alt="imgem-gravatar"
-        />
+              <img
+                data-testid="header-profile-picture"
+                src="https://www.gravatar.com/avatar/c19ad9dbaf91c5533605fbf985177ccc"
+                alt="imgem-gravatar"
+              />
 
-        <h2
-          data-testid="header-player-name"
-        >
-          { name }
-        </h2>
-
-        <h2
-          data-testid="header-score"
-        >
-          Score: 0
-        </h2>
-
-        <h1
-          data-testid="question-category"
-        >
-          { category }
-        </h1>
-
-        <span
-          data-testid="question-text"
-        >
-          { question }
-        </span>
-
-        <div data-testid="answer-options">
-          {
-            arrayAnswer.map((answer, index) => (
-              <button
-                data-testid={
-                  answer === correctAnswer
-                    ? 'correct-answer'
-                    : `wrong-answer-${index}`
-                }
-                type="button"
-                key={ answer }
+              <h2
+                data-testid="header-player-name"
               >
-                { answer }
-              </button>
-            ))
-          }
-        </div>
-      </section>
+                { name }
+              </h2>
+
+              <h2
+                data-testid="header-score"
+              >
+                Score: 0
+              </h2>
+
+              <h1
+                data-testid="question-category"
+              >
+                { category }
+              </h1>
+
+              <span
+                data-testid="question-text"
+              >
+                { question }
+              </span>
+
+              <div data-testid="answer-options">
+                {
+                  arrayAnswer.map((answer, index) => (
+                    <button
+                      data-testid={
+                        answer === correctAnswer
+                          ? 'correct-answer'
+                          : `wrong-answer-${index}`
+                      }
+                      type="button"
+                      key={ answer }
+                    >
+                      { answer }
+                    </button>
+                  ))
+                }
+              </div>
+            </section>
+          )
+        }
+      </div>
     );
   }
 }

@@ -16,6 +16,7 @@ class Jogo extends Component {
       arrayAnswer: [],
       name: '',
       clicked: false,
+      isDisabled: false,
     };
   }
 
@@ -23,6 +24,10 @@ class Jogo extends Component {
     const { dispatch, token } = this.props;
     dispatch(fetchQuestionsAction(token));
     this.getName();
+    const trintaSegundos = 30000;
+    setTimeout(() => this.setState({
+      isDisabled: true,
+    }), trintaSegundos);
   }
 
   componentDidUpdate(prevProps) {
@@ -85,6 +90,7 @@ class Jogo extends Component {
       arrayAnswer,
       correctAnswer,
       clicked,
+      isDisabled,
     } = this.state;
 
     return (
@@ -102,7 +108,7 @@ class Jogo extends Component {
               <h2
                 data-testid="header-player-name"
               >
-                { name }
+                {name}
               </h2>
 
               <h2
@@ -114,13 +120,13 @@ class Jogo extends Component {
               <h1
                 data-testid="question-category"
               >
-                { category }
+                {category}
               </h1>
 
               <span
                 data-testid="question-text"
               >
-                { question }
+                {question}
               </span>
 
               <div data-testid="answer-options">
@@ -136,8 +142,9 @@ class Jogo extends Component {
                       type="button"
                       key={ answer.answer }
                       className={ clicked && answer.className }
+                      disabled={ isDisabled }
                     >
-                      { answer.answer }
+                      {answer.answer}
                     </button>
                   ))
                 }

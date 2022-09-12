@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { fetchQuestionsAction } from '../redux/actions/index';
+import '../styles/Trivia.css';
 // import md5 from 'crypto-js/md5';
 
 class Jogo extends Component {
@@ -14,6 +15,7 @@ class Jogo extends Component {
       correctAnswer: '',
       arrayAnswer: [],
       name: '',
+      clicked: false,
     };
   }
 
@@ -53,18 +55,37 @@ class Jogo extends Component {
       history.push('/');
     } else {
       const IncorrectAnswers = questions.results[0].incorrect_answers;
+      const incorrectAnswersMap = IncorrectAnswers.map((incorrect) => ({
+        answer: incorrect,
+        className: 'incorrect-answer',
+      }));
       const correctAnswer = questions.results[0].correct_answer;
       this.setState({
         question: questions.results[0].question,
         category: questions.results[0].category,
         correctAnswer: questions.results[0].correct_answer,
-        arrayAnswer: this.shuffleArray([...IncorrectAnswers, correctAnswer]),
+        arrayAnswer: this.shuffleArray([
+          ...incorrectAnswersMap,
+          {
+            answer: correctAnswer, className: 'correct-answer',
+          }]),
       });
     }
   };
 
+  colorAnswer = () => {
+    this.setState({ clicked: true });
+  };
+
   render() {
-    const { question, category, name, arrayAnswer, correctAnswer } = this.state;
+    const {
+      question,
+      category,
+      name,
+      arrayAnswer,
+      correctAnswer,
+      clicked,
+    } = this.state;
 
     return (
       <div>
@@ -75,7 +96,7 @@ class Jogo extends Component {
               <img
                 data-testid="header-profile-picture"
                 src="https://www.gravatar.com/avatar/c19ad9dbaf91c5533605fbf985177ccc"
-                alt="imgem-gravatar"
+                alt="imagem-gravatar"
               />
 
               <h2
@@ -107,14 +128,16 @@ class Jogo extends Component {
                   arrayAnswer.map((answer, index) => (
                     <button
                       data-testid={
-                        answer === correctAnswer
+                        answer.answer === correctAnswer
                           ? 'correct-answer'
                           : `wrong-answer-${index}`
                       }
+                      onClick={ (event) => this.colorAnswer(event) }
                       type="button"
-                      key={ answer }
+                      key={ answer.answer }
+                      className={ clicked && answer.className }
                     >
-                      { answer }
+                      { answer.answer }
                     </button>
                   ))
                 }

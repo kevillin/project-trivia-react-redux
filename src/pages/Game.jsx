@@ -17,12 +17,17 @@ class Jogo extends Component {
     };
   }
 
-  async componentDidMount() {
-    const { dispatch } = this.props;
-    const { token } = this.props;
-    await dispatch(fetchQuestionsAction(token));
-    this.renderQuestions();
+  componentDidMount() {
+    const { dispatch, token } = this.props;
+    dispatch(fetchQuestionsAction(token));
     this.getName();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { questions } = this.props;
+    if (questions !== prevProps.questions) {
+      this.renderQuestions();
+    }
   }
 
   shuffleArray = (arr) => {
@@ -42,74 +47,82 @@ class Jogo extends Component {
 
   renderQuestions = () => {
     const { questions, history } = this.props;
-    if (questions.length === 0) {
-      localStorage.setItem('token', '');
+    const INVALID_TOKEN = 3;
+    if (questions.response_code === INVALID_TOKEN) {
+      localStorage.clear();
       history.push('/');
     } else {
-      // const MAX = 4;
-      // const RANDOM = Math.floor(Math.random() * (0 + MAX));
-      const IncoAnswers = questions[0].incorrect_answers;
-      IncoAnswers.push(questions[0].correct_answer);
+      const IncorrectAnswers = questions.results[0].incorrect_answers;
+      const correctAnswer = questions.results[0].correct_answer;
       this.setState({
-        question: questions[0].question,
-        category: questions[0].category,
-        correctAnswer: questions[0].correct_answer,
-        arrayAnswer: this.shuffleArray(IncoAnswers),
+        question: questions.results[0].question,
+        category: questions.results[0].category,
+        correctAnswer: questions.results[0].correct_answer,
+        arrayAnswer: this.shuffleArray([...IncorrectAnswers, correctAnswer]),
       });
     }
   };
 
   render() {
-    const { question, category, name, arrayAnswer } = this.state;
+    const { question, category, name, arrayAnswer, correctAnswer } = this.state;
 
-    // const userEmail = md5(email).toString();
     return (
-      <section>
+      <div>
+        {
+          question && (
+            <section>
 
-        <img
-          data-testid="header-profile-picture"
-          src="https://www.gravatar.com/avatar/c19ad9dbaf91c5533605fbf985177ccc"
-          alt="imgem-gravatar"
-        />
+              <img
+                data-testid="header-profile-picture"
+                src="https://www.gravatar.com/avatar/c19ad9dbaf91c5533605fbf985177ccc"
+                alt="imgem-gravatar"
+              />
 
-        <h2
-          data-testid="header-player-name"
-        >
-          { name }
-        </h2>
-
-        <h2
-          data-testid="header-score"
-        >
-          Score: 0
-        </h2>
-
-        <h1
-          data-testid="question-category"
-        >
-          { category }
-        </h1>
-
-        <span
-          data-testid="question-text"
-        >
-          { question }
-        </span>
-
-        <div data-testid="answer-options">
-          {
-            arrayAnswer.map((incorAnswer, index) => (
-              <button
-                data-testid={ `wrong-answer-${index}` }
-                type="button"
-                key={ incorAnswer }
+              <h2
+                data-testid="header-player-name"
               >
-                { incorAnswer }
-              </button>
-            ))
-          }
-        </div>
-      </section>
+                { name }
+              </h2>
+
+              <h2
+                data-testid="header-score"
+              >
+                Score: 0
+              </h2>
+
+              <h1
+                data-testid="question-category"
+              >
+                { category }
+              </h1>
+
+              <span
+                data-testid="question-text"
+              >
+                { question }
+              </span>
+
+              <div data-testid="answer-options">
+                {
+                  arrayAnswer.map((answer, index) => (
+                    <button
+                      data-testid={
+                        answer === correctAnswer
+                          ? 'correct-answer'
+                          : `wrong-answer-${index}`
+                      }
+                      type="button"
+                      key={ answer }
+                    >
+                      { answer }
+                    </button>
+                  ))
+                }
+              </div>
+            </section>
+          )
+        }
+      </div>
     );
   }
 }

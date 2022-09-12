@@ -1,7 +1,7 @@
 import { SAVE_QUESTIONS } from '../actions';
 
 const INITIAL_STATE = {
-  questions: [],
+  questions: {},
 };
 
 function questionsReducer(state = INITIAL_STATE, action) {

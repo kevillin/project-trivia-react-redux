@@ -17,5 +17,5 @@ export const saveQuestions = (data) => ({
 export const fetchQuestionsAction = (token) => async (dispatch) => {
   const response = await getQuestions(token);
 
-  dispatch(saveQuestions(response.results));
+  dispatch(saveQuestions(response));
 };

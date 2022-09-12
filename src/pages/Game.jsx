@@ -18,8 +18,7 @@ class Jogo extends Component {
   }
 
   async componentDidMount() {
-    const { dispatch } = this.props;
-    const { token } = this.props;
+    const { dispatch, token } = this.props;
     await dispatch(fetchQuestionsAction(token));
     this.renderQuestions();
     this.getName();
@@ -41,26 +40,19 @@ class Jogo extends Component {
   };
 
   renderQuestions = () => {
-    const { questions, history } = this.props;
-    if (questions.length === 0) {
-      localStorage.setItem('token', '');
-      history.push('/');
-    } else {
-      // const MAX = 4;
-      // const RANDOM = Math.floor(Math.random() * (0 + MAX));
-      const IncoAnswers = questions[0].incorrect_answers;
-      IncoAnswers.push(questions[0].correct_answer);
-      this.setState({
-        question: questions[0].question,
-        category: questions[0].category,
-        correctAnswer: questions[0].correct_answer,
-        arrayAnswer: this.shuffleArray(IncoAnswers),
-      });
-    }
+    const { questions } = this.props;
+    const IncoAnswers = questions.results[0].incorrect_answers;
+    IncoAnswers.push(questions.results[0].correct_answer);
+    this.setState({
+      question: questions.results[0].question,
+      category: questions.results[0].category,
+      correctAnswer: questions.results[0].correct_answer,
+      arrayAnswer: this.shuffleArray(IncoAnswers),
+    });
   };
 
   render() {
-    const { question, category, name, arrayAnswer } = this.state;
+    const { question, category, name, arrayAnswer, correctAnswer } = this.state;
 
     // const userEmail = md5(email).toString();
     return (
@@ -98,13 +90,17 @@ class Jogo extends Component {
 
         <div data-testid="answer-options">
           {
-            arrayAnswer.map((incorAnswer, index) => (
+            arrayAnswer.map((answer, index) => (
               <button
-                data-testid={ `wrong-answer-${index}` }
+                data-testid={
+                  answer === correctAnswer
+                    ? 'correct-answer'
+                    : `wrong-answer-${index}`
+                }
                 type="button"
-                key={ incorAnswer }
+                key={ answer }
               >
-                { incorAnswer }
+                { answer }
               </button>
             ))
           }

@@ -188,6 +188,16 @@ class Jogo extends Component {
                   ))
                 }
               </div>
+              <div>
+                { clicked && (
+                  <button
+                    data-testid="btn-next"
+                    type="button"
+                  >
+                    Next
+                  </button>
+                )}
+              </div>
             </section>
           )
         }

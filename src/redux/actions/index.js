@@ -4,6 +4,7 @@ export const SAVE_TOKEN = 'SAVE_TOKEN';
 export const SAVE_NAME_USER = 'SAVE_NAME_USER';
 export const SAVE_EMAIL_USER = 'SAVE_EMAIL_USER';
 export const SAVE_QUESTIONS = 'SAVE_QUESTIONS';
+export const SAVE_SCORE = 'SAVE_SCORE';
 
 export const saveToken = (payload) => ({ type: SAVE_TOKEN, payload });
 export const saveEmailUser = (payload) => ({ type: SAVE_EMAIL_USER, payload });
@@ -19,3 +20,8 @@ export const fetchQuestionsAction = (token) => async (dispatch) => {
 
   dispatch(saveQuestions(response));
 };
+
+export const saveScore = (payload) => ({
+  type: SAVE_SCORE,
+  payload,
+});

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { fetchQuestionsAction } from '../redux/actions/index';
+import { fetchQuestionsAction, saveScore } from '../redux/actions/index';
 import '../styles/Trivia.css';
 // import md5 from 'crypto-js/md5';
 
@@ -15,8 +15,10 @@ class Jogo extends Component {
       correctAnswer: '',
       arrayAnswer: [],
       name: '',
+      difficult: '',
       clicked: false,
       isDisabled: false,
+      timer: 30,
     };
   }
 
@@ -25,6 +27,7 @@ class Jogo extends Component {
     dispatch(fetchQuestionsAction(token));
     this.getName();
     const trintaSegundos = 30000;
+    this.creatingTimer();
     setTimeout(() => this.setState({
       isDisabled: true,
     }), trintaSegundos);
@@ -36,6 +39,38 @@ class Jogo extends Component {
       this.renderQuestions();
     }
   }
+
+  coutingDifficult = () => {
+    const { dispatch } = this.props;
+    const { timer, difficult } = this.state;
+    const easyQ = 1;
+    const mediumQ = 2;
+    const hardQ = 3;
+    const DEZ = 10;
+    console.log(difficult);
+    if (difficult === 'easy') {
+      dispatch(saveScore(DEZ + timer * easyQ));
+      console.log(timer);
+    } if (difficult === 'medium') {
+      dispatch(saveScore(DEZ + timer * mediumQ));
+      console.log(timer);
+    } if (difficult === 'hard') {
+      dispatch(saveScore(DEZ + timer * hardQ));
+      console.log(timer);
+    }
+  };
+
+  creatingTimer = () => {
+    const umSegundo = 1000;
+    const stop = setInterval(() => {
+      this.setState((prevState) => ({
+        timer: prevState.timer - 1,
+      }), () => {
+        const { timer, clicked } = this.state;
+        if (timer === 0 || clicked) clearInterval(stop);
+      });
+    }, umSegundo);
+  };
 
   shuffleArray = (arr) => {
     for (let i = arr.length - 1; i > 0; i -= 1) {
@@ -68,6 +103,7 @@ class Jogo extends Component {
       this.setState({
         question: questions.results[0].question,
         category: questions.results[0].category,
+        difficult: questions.results[0].difficulty,
         correctAnswer: questions.results[0].correct_answer,
         arrayAnswer: this.shuffleArray([
           ...incorrectAnswersMap,
@@ -78,8 +114,13 @@ class Jogo extends Component {
     }
   };
 
-  colorAnswer = () => {
+  colorAnswer = ({ target }) => {
     this.setState({ clicked: true });
+    const { correctAnswer } = this.state;
+    if (target.innerText === correctAnswer) {
+      this.coutingDifficult();
+      console.log('acertou mizeravi');
+    }
   };
 
   render() {
@@ -91,7 +132,9 @@ class Jogo extends Component {
       correctAnswer,
       clicked,
       isDisabled,
+      timer,
     } = this.state;
+    const { score } = this.props;
 
     return (
       <div>
@@ -114,7 +157,8 @@ class Jogo extends Component {
               <h2
                 data-testid="header-score"
               >
-                Score: 0
+                Score:
+                { score }
               </h2>
 
               <h1
@@ -122,7 +166,10 @@ class Jogo extends Component {
               >
                 {category}
               </h1>
-
+              <div>
+                Timer:
+                {` 00:${timer}`}
+              </div>
               <span
                 data-testid="question-text"
               >
@@ -149,6 +196,16 @@ class Jogo extends Component {
                   ))
                 }
               </div>
+              <div>
+                { clicked && (
+                  <button
+                    data-testid="btn-next"
+                    type="button"
+                  >
+                    Next
+                  </button>
+                )}
+              </div>
             </section>
           )
         }
@@ -161,7 +218,13 @@ const mapStateToProps = (state) => ({
   questions: state.questionsReducer.questions,
   name: state.saveUser.name,
   token: state.tokenReducer.token,
+  score: state.player.score,
 });
+
+// const mapDispatchToProps = (dispatch) => ({
+//   scoreToRedux: (score) => dispatch(saveScore(score)),
+//   tokenToRedux: (token) => dispatch(fetchQuestionsAction(token)),
+// });
 
 export default connect(mapStateToProps)(Jogo);
 

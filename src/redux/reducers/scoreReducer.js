@@ -9,7 +9,7 @@ function scoreReducer(state = INITIAL_STATE, action) {
   case SAVE_SCORE:
     return {
       ...state,
-      score: action.payload,
+      score: state.score + action.payload,
     };
   default:
     return state;

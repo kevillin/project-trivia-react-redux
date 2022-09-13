@@ -17,6 +17,7 @@ class Jogo extends Component {
       name: '',
       clicked: false,
       isDisabled: false,
+      timer: 30,
     };
   }
 
@@ -25,6 +26,7 @@ class Jogo extends Component {
     dispatch(fetchQuestionsAction(token));
     this.getName();
     const trintaSegundos = 30000;
+    this.creatingTimer();
     setTimeout(() => this.setState({
       isDisabled: true,
     }), trintaSegundos);
@@ -36,6 +38,37 @@ class Jogo extends Component {
       this.renderQuestions();
     }
   }
+
+  coutingDifficult = () => {
+    const { questions } = this.props;
+    const { timer } = this.state;
+    const easyQ = 1;
+    const mediumQ = 2;
+    const hardQ = 3;
+    const DEZ = 10;
+    const difficultQuestion = questions.results[0].difficult;
+    if (difficultQuestion === 'easy') {
+      return (DEZ + timer * easyQ);
+    } if (difficultQuestion === 'medium') {
+      return (DEZ + timer * mediumQ);
+    } if (difficultQuestion === 'hard') {
+      return (DEZ + timer * hardQ);
+    }
+  };
+
+  creatingTimer = () => {
+    const umSegundo = 1000;
+    setInterval(() => {
+      const { timer } = this.state;
+      this.setState((prevState) => ({
+        timer: prevState.timer - 1,
+      }), () => {
+        if (timer === 0) {
+          return clearInterval(timer);
+        }
+      });
+    }, umSegundo);
+  };
 
   shuffleArray = (arr) => {
     for (let i = arr.length - 1; i > 0; i -= 1) {
@@ -80,6 +113,8 @@ class Jogo extends Component {
 
   colorAnswer = () => {
     this.setState({ clicked: true });
+    this.coutingDifficult();
+    console.log(this.coutingDifficult());
   };
 
   render() {
@@ -91,6 +126,7 @@ class Jogo extends Component {
       correctAnswer,
       clicked,
       isDisabled,
+      timer,
     } = this.state;
 
     return (
@@ -122,7 +158,10 @@ class Jogo extends Component {
               >
                 {category}
               </h1>
-
+              <div>
+                Timer:
+                {` 00:${timer}`}
+              </div>
               <span
                 data-testid="question-text"
               >

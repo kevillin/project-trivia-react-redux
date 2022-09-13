@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { fetchQuestionsAction, saveScore } from '../redux/actions/index';
 import '../styles/Trivia.css';
-// import md5 from 'crypto-js/md5';
 
 class Jogo extends Component {
   constructor() {
@@ -19,6 +18,7 @@ class Jogo extends Component {
       clicked: false,
       isDisabled: false,
       timer: 30,
+      inicialQuestion: 0,
     };
   }
 
@@ -26,17 +26,18 @@ class Jogo extends Component {
     const { dispatch, token } = this.props;
     dispatch(fetchQuestionsAction(token));
     this.getName();
-    const trintaSegundos = 30000;
     this.creatingTimer();
-    setTimeout(() => this.setState({
-      isDisabled: true,
-    }), trintaSegundos);
   }
 
   componentDidUpdate(prevProps) {
     const { questions } = this.props;
+    const { timer, clicked } = this.state;
     if (questions !== prevProps.questions) {
       this.renderQuestions();
+    }
+    if (timer === 0 && !clicked) {
+      clearInterval(this.stop);
+      this.setState({ clicked: true, isDisabled: true });
     }
   }
 
@@ -47,27 +48,23 @@ class Jogo extends Component {
     const mediumQ = 2;
     const hardQ = 3;
     const DEZ = 10;
-    console.log(difficult);
     if (difficult === 'easy') {
-      dispatch(saveScore(DEZ + timer * easyQ));
-      console.log(timer);
+      dispatch(saveScore(DEZ + (timer * easyQ)));
     } if (difficult === 'medium') {
-      dispatch(saveScore(DEZ + timer * mediumQ));
-      console.log(timer);
+      dispatch(saveScore(DEZ + (timer * mediumQ)));
     } if (difficult === 'hard') {
-      dispatch(saveScore(DEZ + timer * hardQ));
-      console.log(timer);
+      dispatch(saveScore(DEZ + (timer * hardQ)));
     }
   };
 
   creatingTimer = () => {
     const umSegundo = 1000;
-    const stop = setInterval(() => {
+    this.stop = setInterval(() => {
       this.setState((prevState) => ({
         timer: prevState.timer - 1,
       }), () => {
         const { timer, clicked } = this.state;
-        if (timer === 0 || clicked) clearInterval(stop);
+        if (timer === 0 || clicked) clearInterval(this.stop);
       });
     }, umSegundo);
   };
@@ -89,22 +86,23 @@ class Jogo extends Component {
 
   renderQuestions = () => {
     const { questions, history } = this.props;
+    const { inicialQuestion } = this.state;
     const INVALID_TOKEN = 3;
     if (questions.response_code === INVALID_TOKEN) {
       localStorage.clear();
       history.push('/');
     } else {
-      const IncorrectAnswers = questions.results[0].incorrect_answers;
+      const IncorrectAnswers = questions.results[inicialQuestion].incorrect_answers;
       const incorrectAnswersMap = IncorrectAnswers.map((incorrect) => ({
         answer: incorrect,
         className: 'incorrect-answer',
       }));
-      const correctAnswer = questions.results[0].correct_answer;
+      const correctAnswer = questions.results[inicialQuestion].correct_answer;
       this.setState({
-        question: questions.results[0].question,
-        category: questions.results[0].category,
-        difficult: questions.results[0].difficulty,
-        correctAnswer: questions.results[0].correct_answer,
+        question: questions.results[inicialQuestion].question,
+        category: questions.results[inicialQuestion].category,
+        difficult: questions.results[inicialQuestion].difficulty,
+        correctAnswer: questions.results[inicialQuestion].correct_answer,
         arrayAnswer: this.shuffleArray([
           ...incorrectAnswersMap,
           {
@@ -112,6 +110,24 @@ class Jogo extends Component {
           }]),
       });
     }
+  };
+
+  nextQuestion = () => {
+    this.setState((prevState) => ({
+      inicialQuestion: prevState.inicialQuestion + 1,
+      clicked: false,
+      timer: 30,
+    }), () => {
+      const { inicialQuestion } = this.state;
+      const QUATRO = 4;
+      if (inicialQuestion > QUATRO) {
+        const { history } = this.props;
+        history.push('/feedback');
+      } else {
+        this.creatingTimer();
+        this.renderQuestions();
+      }
+    });
   };
 
   colorAnswer = ({ target }) => {
@@ -201,6 +217,7 @@ class Jogo extends Component {
                   <button
                     data-testid="btn-next"
                     type="button"
+                    onClick={ this.nextQuestion }
                   >
                     Next
                   </button>
@@ -220,11 +237,6 @@ const mapStateToProps = (state) => ({
   token: state.tokenReducer.token,
   score: state.player.score,
 });
-
-// const mapDispatchToProps = (dispatch) => ({
-//   scoreToRedux: (score) => dispatch(saveScore(score)),
-//   tokenToRedux: (token) => dispatch(fetchQuestionsAction(token)),
-// });
 
 export default connect(mapStateToProps)(Jogo);
 

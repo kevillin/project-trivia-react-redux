@@ -15,6 +15,7 @@ class Jogo extends Component {
       correctAnswer: '',
       arrayAnswer: [],
       name: '',
+      difficult: '',
       clicked: false,
       isDisabled: false,
       timer: 30,
@@ -40,20 +41,20 @@ class Jogo extends Component {
   }
 
   coutingDifficult = () => {
-    const { questions, dispatch } = this.props;
-    const { timer } = this.state;
+    const { dispatch } = this.props;
+    const { timer, difficult } = this.state;
     const easyQ = 1;
     const mediumQ = 2;
     const hardQ = 3;
     const DEZ = 10;
-    const difficultQuestion = questions.results[0].difficult;
-    if (difficultQuestion === 'easy') {
+    console.log(difficult);
+    if (difficult === 'easy') {
       dispatch(saveScore(DEZ + timer * easyQ));
       console.log(timer);
-    } if (difficultQuestion === 'medium') {
+    } if (difficult === 'medium') {
       dispatch(saveScore(DEZ + timer * mediumQ));
       console.log(timer);
-    } if (difficultQuestion === 'hard') {
+    } if (difficult === 'hard') {
       dispatch(saveScore(DEZ + timer * hardQ));
       console.log(timer);
     }
@@ -65,8 +66,8 @@ class Jogo extends Component {
       this.setState((prevState) => ({
         timer: prevState.timer - 1,
       }), () => {
-        const { timer } = this.state;
-        if (timer === 0) clearInterval(stop);
+        const { timer, clicked } = this.state;
+        if (timer === 0 || clicked) clearInterval(stop);
       });
     }, umSegundo);
   };
@@ -102,6 +103,7 @@ class Jogo extends Component {
       this.setState({
         question: questions.results[0].question,
         category: questions.results[0].category,
+        difficult: questions.results[0].difficulty,
         correctAnswer: questions.results[0].correct_answer,
         arrayAnswer: this.shuffleArray([
           ...incorrectAnswersMap,
@@ -132,6 +134,7 @@ class Jogo extends Component {
       isDisabled,
       timer,
     } = this.state;
+    const { score } = this.props;
 
     return (
       <div>
@@ -154,7 +157,8 @@ class Jogo extends Component {
               <h2
                 data-testid="header-score"
               >
-                Score: 0
+                Score:
+                { score }
               </h2>
 
               <h1
@@ -214,6 +218,7 @@ const mapStateToProps = (state) => ({
   questions: state.questionsReducer.questions,
   name: state.saveUser.name,
   token: state.tokenReducer.token,
+  score: state.player.score,
 });
 
 // const mapDispatchToProps = (dispatch) => ({

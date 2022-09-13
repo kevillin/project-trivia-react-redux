@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { fetchQuestionsAction, saveScore } from '../redux/actions/index';
+import { fetchQuestionsAction, saveScore, getRightAnswer } from '../redux/actions/index';
 import '../styles/Trivia.css';
 
 class Jogo extends Component {
@@ -132,10 +132,11 @@ class Jogo extends Component {
 
   colorAnswer = ({ target }) => {
     this.setState({ clicked: true });
+    const { dispatch } = this.props;
     const { correctAnswer } = this.state;
     if (target.innerText === correctAnswer) {
       this.coutingDifficult();
-      console.log('acertou mizeravi');
+      dispatch(getRightAnswer(1));
     }
   };
 

@@ -3,6 +3,11 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 class Feedback extends Component {
+  playAgain = () => {
+    const { history } = this.props;
+    history.push('/');
+  };
+
   render() {
     const { name, score, assertions } = this.props;
     const TRES = 3;
@@ -30,8 +35,14 @@ class Feedback extends Component {
           >
             { assertions }
           </h2>
-
         </div>
+        <button
+          data-testid="btn-play-again"
+          type="button"
+          onClick={ this.playAgain }
+        >
+          Play Again
+        </button>
       </header>
 
     );

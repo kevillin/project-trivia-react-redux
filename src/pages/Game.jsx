@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { fetchQuestionsAction } from '../redux/actions/index';
+import { fetchQuestionsAction, saveScore } from '../redux/actions/index';
 import '../styles/Trivia.css';
 // import md5 from 'crypto-js/md5';
 
@@ -17,8 +17,7 @@ class Jogo extends Component {
       name: '',
       clicked: false,
       isDisabled: false,
-      timer: 3,
-      ZERO: 0,
+      timer: 30,
     };
   }
 
@@ -26,7 +25,7 @@ class Jogo extends Component {
     const { dispatch, token } = this.props;
     dispatch(fetchQuestionsAction(token));
     this.getName();
-    const trintaSegundos = 3000;
+    const trintaSegundos = 30000;
     this.creatingTimer();
     setTimeout(() => this.setState({
       isDisabled: true,
@@ -41,7 +40,7 @@ class Jogo extends Component {
   }
 
   coutingDifficult = () => {
-    const { questions } = this.props;
+    const { questions, dispatch } = this.props;
     const { timer } = this.state;
     const easyQ = 1;
     const mediumQ = 2;
@@ -49,11 +48,14 @@ class Jogo extends Component {
     const DEZ = 10;
     const difficultQuestion = questions.results[0].difficult;
     if (difficultQuestion === 'easy') {
-      return (DEZ + timer * easyQ);
+      dispatch(saveScore(DEZ + timer * easyQ));
+      console.log(timer);
     } if (difficultQuestion === 'medium') {
-      return (DEZ + timer * mediumQ);
+      dispatch(saveScore(DEZ + timer * mediumQ));
+      console.log(timer);
     } if (difficultQuestion === 'hard') {
-      return (DEZ + timer * hardQ);
+      dispatch(saveScore(DEZ + timer * hardQ));
+      console.log(timer);
     }
   };
 
@@ -110,9 +112,13 @@ class Jogo extends Component {
     }
   };
 
-  colorAnswer = () => {
+  colorAnswer = ({ target }) => {
     this.setState({ clicked: true });
-    this.coutingDifficult();
+    const { correctAnswer } = this.state;
+    if (target.innerText === correctAnswer) {
+      this.coutingDifficult();
+      console.log('acertou mizeravi');
+    }
   };
 
   render() {
@@ -209,6 +215,11 @@ const mapStateToProps = (state) => ({
   name: state.saveUser.name,
   token: state.tokenReducer.token,
 });
+
+// const mapDispatchToProps = (dispatch) => ({
+//   scoreToRedux: (score) => dispatch(saveScore(score)),
+//   tokenToRedux: (token) => dispatch(fetchQuestionsAction(token)),
+// });
 
 export default connect(mapStateToProps)(Jogo);
 

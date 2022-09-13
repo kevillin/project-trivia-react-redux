@@ -17,7 +17,8 @@ class Jogo extends Component {
       name: '',
       clicked: false,
       isDisabled: false,
-      timer: 30,
+      timer: 3,
+      ZERO: 0,
     };
   }
 
@@ -25,7 +26,7 @@ class Jogo extends Component {
     const { dispatch, token } = this.props;
     dispatch(fetchQuestionsAction(token));
     this.getName();
-    const trintaSegundos = 30000;
+    const trintaSegundos = 3000;
     this.creatingTimer();
     setTimeout(() => this.setState({
       isDisabled: true,
@@ -58,14 +59,12 @@ class Jogo extends Component {
 
   creatingTimer = () => {
     const umSegundo = 1000;
-    setInterval(() => {
-      const { timer } = this.state;
+    const stop = setInterval(() => {
       this.setState((prevState) => ({
         timer: prevState.timer - 1,
       }), () => {
-        if (timer === 0) {
-          return clearInterval(timer);
-        }
+        const { timer } = this.state;
+        if (timer === 0) clearInterval(stop);
       });
     }, umSegundo);
   };
@@ -114,7 +113,6 @@ class Jogo extends Component {
   colorAnswer = () => {
     this.setState({ clicked: true });
     this.coutingDifficult();
-    console.log(this.coutingDifficult());
   };
 
   render() {

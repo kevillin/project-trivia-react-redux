@@ -121,6 +121,9 @@ class Jogo extends Component {
       const { inicialQuestion } = this.state;
       const QUATRO = 4;
       if (inicialQuestion > QUATRO) {
+        // const score1 = JSON.parse(localStorage.getItem('score'));
+        const { score } = this.props;
+        localStorage.setItem('score', score);
         const { history } = this.props;
         history.push('/feedback');
       } else {
